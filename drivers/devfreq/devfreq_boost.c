@@ -61,8 +61,15 @@ static void __devfreq_boost_kick(struct boost_dev *b)
 	if (!READ_ONCE(b->df) || test_bit(SCREEN_OFF, &b->state))
 		return;
 
-	if (kp_active_mode() == 3)
+	switch (kp_active_mode()) {
+	case 0:
+	case 2:
+		period = CONFIG_DEVFREQ_INPUT_BOOST_DURATION_MS * 1;
+		break;
+	case 3:
 		period = CONFIG_DEVFREQ_INPUT_BOOST_DURATION_MS * 2;
+		break;
+	}
 
 	set_bit(INPUT_BOOST, &b->state);
 	if (!mod_delayed_work(system_unbound_wq, &b->input_unboost,
