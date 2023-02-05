@@ -56,20 +56,14 @@ static struct df_boost_drv df_boost_drv_g __read_mostly = {
 extern int kp_active_mode(void);
 static void __devfreq_boost_kick(struct boost_dev *b)
 {
-	unsigned int period = CONFIG_DEVFREQ_INPUT_BOOST_DURATION_MS;
+	unsigned int period;
 
 	if (!READ_ONCE(b->df) || test_bit(SCREEN_OFF, &b->state))
 		return;
 
-	switch (kp_active_mode()) {
-	case 0:
-	case 2:
-		period = CONFIG_DEVFREQ_INPUT_BOOST_DURATION_MS * 1;
-		break;
-	case 3:
-		period = CONFIG_DEVFREQ_INPUT_BOOST_DURATION_MS * 2;
-		break;
-	}
+	period = (kp_active_mode() == 2) ? (CONFIG_DEVFREQ_INPUT_BOOST_DURATION_MS * 1) :
+		 (kp_active_mode() == 3) ? (CONFIG_DEVFREQ_INPUT_BOOST_DURATION_MS * 2) :
+		 CONFIG_DEVFREQ_INPUT_BOOST_DURATION_MS;
 
 	set_bit(INPUT_BOOST, &b->state);
 	if (!mod_delayed_work(system_unbound_wq, &b->input_unboost,
