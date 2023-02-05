@@ -2208,6 +2208,7 @@ static void complete_crtc_signaling(struct drm_device *dev,
 	kfree(fence_state);
 }
 
+extern int kp_active_mode(void);
 static int __drm_mode_atomic_ioctl(struct drm_device *dev, void *data,
 				   struct drm_file *file_priv)
 {
@@ -2224,6 +2225,8 @@ static int __drm_mode_atomic_ioctl(struct drm_device *dev, void *data,
 	unsigned plane_mask;
 	int ret = 0;
 	unsigned int i, j, num_fences;
+	unsigned int multi = 15;
+	unsigned int period = 30;
 
 	/* disallow for drivers not supporting atomic: */
 	if (!drm_core_check_feature(dev, DRIVER_ATOMIC))
@@ -2251,9 +2254,22 @@ static int __drm_mode_atomic_ioctl(struct drm_device *dev, void *data,
 			(arg->flags & DRM_MODE_PAGE_FLIP_EVENT))
 		return -EINVAL;
 
+	switch (kp_active_mode()) {
+	case 0:
+	case 2:
+		multi = 25;
+		period = 50;
+		break;
+	case 3:
+		multi = 50;
+		period = 100;
+		break;
+	}
+
+	/* Boost DDR Bus according to kernel profile set */
 	if (!(arg->flags & DRM_MODE_ATOMIC_TEST_ONLY)) {
-		devfreq_boost_kick(DEVFREQ_CPU_DDR_BW);
-		cpu_input_boost_kick();
+		devfreq_boost_kick_max(DEVFREQ_CPU_DDR_BW, period);
+		cpu_input_boost_kick_max(multi);
 
 	}
 
