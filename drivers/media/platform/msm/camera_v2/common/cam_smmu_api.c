@@ -125,6 +125,9 @@ struct cam_iommu_cb_set {
 	struct work_struct smmu_work;
 	struct mutex payload_list_lock;
 	struct list_head payload_list;
+#ifdef CONFIG_VENDOR_EDIT
+	u32 non_fatal_fault;
+#endif
 };
 
 static const struct of_device_id msm_cam_smmu_dt_match[] = {
@@ -423,7 +426,11 @@ static int cam_smmu_iommu_fault_handler(struct iommu_domain *domain,
 	list_add_tail(&payload->list, &iommu_cb_set.payload_list);
 	mutex_unlock(&iommu_cb_set.payload_list_lock);
 
+#ifdef CONFIG_VENDOR_EDIT
+	cam_smmu_page_fault_work(&iommu_cb_set.smmu_work);
+#else
 	schedule_work(&iommu_cb_set.smmu_work);
+#endif
 
 	return 0;
 }
@@ -2089,6 +2096,15 @@ static int cam_smmu_setup_cb(struct cam_context_bank_info *cb,
 		rc = -ENODEV;
 		goto end;
 	}
+#ifdef CONFIG_VENDOR_EDIT
+	iommu_cb_set.non_fatal_fault = 1;
+
+	if (iommu_domain_set_attr(cb->mapping->domain,
+			DOMAIN_ATTR_NON_FATAL_FAULTS,
+			&iommu_cb_set.non_fatal_fault) < 0) {
+		pr_err("%s:Error: failed to set DOMAIN_ATTR_NON_FATAL_FAULTS\n", __func__);
+	}
+#endif
 
 	return 0;
 end:

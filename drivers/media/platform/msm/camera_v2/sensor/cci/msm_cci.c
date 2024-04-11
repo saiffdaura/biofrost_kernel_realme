@@ -1427,10 +1427,19 @@ static int32_t msm_cci_init(struct v4l2_subdev *sd,
 	}
 
 	/* Re-initialize the completion */
+#ifdef CONFIG_VENDOR_EDIT
+	/*modify by hongbo.dai@camera 20190709, for Qualcomm CCI patch*/
+	for (j = 0; j < NUM_MASTERS; j++) {
+		reinit_completion(&cci_dev->cci_master_info[j].reset_complete);
+		for (i = 0; i < NUM_QUEUES; i++)
+			reinit_completion(&cci_dev->cci_master_info[j].report_q[i]);
+	}
+#else
 	reinit_completion(&cci_dev->cci_master_info[master].reset_complete);
 	for (i = 0; i < NUM_QUEUES; i++)
 		reinit_completion(&cci_dev->cci_master_info[
 				master].report_q[i]);
+#endif
 	rc = msm_camera_enable_irq(cci_dev->irq, true);
 	if (rc < 0)
 		pr_err("%s: irq enable failed\n", __func__);

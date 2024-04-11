@@ -424,6 +424,9 @@ static int msm_ispif_reset_hw(struct ispif_device *ispif)
 {
 	int rc = 0;
 	long timeout = 0;
+#ifdef CONFIG_VENDOR_EDIT
+	uint32_t ispifStatus;
+#endif
 
 	ispif->clk_idx = 0;
 
@@ -456,6 +459,10 @@ static int msm_ispif_reset_hw(struct ispif_device *ispif)
 	if (timeout <= 0) {
 		rc = -ETIMEDOUT;
 		pr_err("%s: VFE0 reset wait timeout\n", __func__);
+	#ifdef CONFIG_VENDOR_EDIT
+		ispifStatus = msm_camera_io_r(ispif->base + ISPIF_VFE_m_IRQ_STATUS_0(VFE0));
+		msm_camera_io_w(ispifStatus, ispif->base + ISPIF_VFE_m_IRQ_CLEAR_0(VFE0));
+	#endif
 		goto clk_disable;
 	}
 
@@ -469,6 +476,10 @@ static int msm_ispif_reset_hw(struct ispif_device *ispif)
 		CDBG("%s: VFE1 done\n", __func__);
 		if (timeout <= 0) {
 			pr_err("%s: VFE1 reset wait timeout\n", __func__);
+		#ifdef CONFIG_VENDOR_EDIT
+			ispifStatus = msm_camera_io_r(ispif->base + ISPIF_VFE_m_IRQ_STATUS_0(VFE1));
+			msm_camera_io_w(ispifStatus, ispif->base + ISPIF_VFE_m_IRQ_CLEAR_0(VFE1));
+		#endif
 			rc = -ETIMEDOUT;
 		}
 	}
