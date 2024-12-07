@@ -37,7 +37,7 @@ export BUILD_TYPE="OBT"
 export DISTRO=$(source /etc/os-release && echo "${NAME}")
 
 # Telegram Integration Variables
-CI_ID="-1001736789494"
+CI_ID="5590741871"
 BOT_ID="7999408983:AAE3oVG5cAXsj7c_-N_7_Z8OvdveBA8NMvY"
 
 sendinfo() {
