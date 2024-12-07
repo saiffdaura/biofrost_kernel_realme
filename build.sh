@@ -24,7 +24,7 @@ export LOCALVERSION="~$(cat biofrost-localversion)"
 # GitHub Variables
 export COMMIT_HASH=$(git rev-parse --short HEAD)
 export BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
-export REPO_URL="https://github.com/mcdofrenchfreis/biofrost_kernel_realme_sm6125"
+export REPO_URL="https://github.com/saiffdaura/biofrost_kernel_realme"
 
 # Build Information
 export COMPILER_NAME="$(${TCDIR}/bin/clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g' -e 's/[[:space:]]*$//')"
