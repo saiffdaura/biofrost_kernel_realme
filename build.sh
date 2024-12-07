@@ -38,7 +38,7 @@ export DISTRO=$(source /etc/os-release && echo "${NAME}")
 
 # Telegram Integration Variables
 CI_ID="-1001736789494"
-BOT_ID="5129489057:AAF5o-JfQ1iAUp9Min7Jcr9sHPjTpCaIlA8"
+BOT_ID="7999408983:AAE3oVG5cAXsj7c_-N_7_Z8OvdveBA8NMvY"
 
 sendinfo() {
   kernel_version=$(make kernelversion 2>/dev/null)
